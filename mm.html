@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>مسح الباركود</title>
+  <script src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+    #reader { width: 100%; max-width: 500px; margin: 0 auto; }
+    #result { margin-top: 20px; padding: 15px; border: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <h1>مسح باركود المنتج</h1>
+  <div id="reader"></div>
+  <div id="result">سيظهر هنا بيانات المنتج بعد المسح</div>
+  
+  <script>
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycby58w8GSoAn2rHvtH1hMJecgcN-HZ5Xih6oD_oHIPfsHj6DZe6KtFOZw0LU8DGQOCLU/exec_'
+    
+    function onScanSuccess(decodedText) {
+      fetch(`${scriptUrl}?barcode=${decodedText}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            document.getElementById('result').innerHTML = 'المنتج غير موجود';
+          } else {
+            document.getElementById('result').innerHTML = `
+              <h3>${data.product_name}</h3>
+              <p>رقم المنتج: ${data.product_num}</p>
+              <p>تاريخ المنتج: ${data.product_date}</p>
+            `;
+          }
+        });
+    }
+    
+    const html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
+      fps: 10,
+      qrbox: 250
+    });
+    
+    html5QrcodeScanner.render(onScanSuccess);
+  </script>
+</body>
+</html>
